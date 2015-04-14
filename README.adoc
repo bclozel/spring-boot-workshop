@@ -1,0 +1,74 @@
+= Spring Boot Workshop
+
+This workshop requires:
+
+* git
+* maven 3.2+
+* JDK6+ (JDK8 if you want to have fun with lambdas)
+* optional: Tomcat 8 if you want to deploy a Spring Boot war application
+
+Note that Spring Boot itself also works with Gradle 1.12.
+
+The slides of the session are https://speakerdeck.com/bclozel/[available on speakerdeck].
+
+The provided applications are:
+
+* `workshop`: main application we'll work on (web, jpa, rest repositories, security, actuator)
+* `command-line` and `hello-service-auto-configuration`: showcase of a custom Spring Boot auto-configuration
+* `my-webapp`: example web app that can be deployed in a Servlet 3+ container.
+
+The following command (or the equivalent IDE command) you get the required dependencies:
+
+    $ mvn clean package
+
+You can check out at any time a branch that will bring you up to speed with the current step, with `stepX` the name
+of the step you want to be in (i.e. step is completed and you're ready to work on the next one):
+
+    $ git reset origin/stepX --hard
+
+== Part #1 :: Booting sequence
+
+In this part, we'll start from a simple skeleton application we've created with the http://start.spring.io service.
+This is the workshop app.
+
+=== Step #1 - run and test a simple REST service
+
+Go to the workshop app and run it:
+* in your IDE with the "run as main" command
+* in your terminal with `mvn spring-boot:run`
+
+Look at the startup logs and go to http://localhost:8080
+
+Create a new REST Controller that returns `Hello World!` on the `"/"` endpoint. For this, you can use the
+`@RestController` and `@RequestMapping` annotations.
+
+Restart the application and browse to the endpoint.
+
+Now create an integration test for this controller; this test class should:
+* be annotated `@WebIntegrationTest` and ask for a random port
+* inject that port as an attribute, using the `@Value` annotation and the following SpEL expression `"${local.server.port}"`
+* use a `RestTemplate` to query that endpoint and check that it responds with "Hello World!"
+
+Now, update your REST Controller to make the "World!" part configurable:
+* use again `@Value` and a SpEL expr. such as `${conference.name:SpringOne2GX}` on an attribute
+* use that attribute in the controller action
+
+Update your test and try the application again.
+
+Add a `conference.name` property in your `application.properties` files and run the app.
+
+Now package the app and try running it as a JAR app:
+
+    $ mvn clean package
+    $ java -jar target/workshop-0.0.1-SNAPSHOT.jar --conference.name="SpringIO"
+
+=== Step #2 - persist data in a datastore
+
+
+=== Step #3 - Secure your application
+
+== Thanks
+
+This workshop has been prepared by https://twitter.com/snicoll[Stéphane Nicoll] and
+https://twitter.com/brianclozel[Brian Clozel].
+

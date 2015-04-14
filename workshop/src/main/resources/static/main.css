@@ -1,0 +1,112 @@
+body {
+    font-weight: 400;
+    font-size: 18px;
+    font-family: "Varela Round", sans-serif;
+    color: #34302d;
+    background-color: #34302d;
+    border-top: 4px solid #6db33f;
+    margin: 0px;
+}
+
+.profile {
+    margin-left: -104px;
+    left: 50%;
+    color: #34302d;
+    right: auto;
+    padding: 2em 2em 0 2em;
+    position: absolute;
+    top: 20%;
+    border-radius: 3px;
+    background-color: rgba(241, 241, 241, 0.7);
+}
+
+.name {
+    font-size: 3em;
+    letter-spacing: -2px;
+    text-transform: capitalize;
+}
+
+a {
+    color: #5fa134;
+}
+
+a:hover {
+    text-decoration: underline
+}
+
+.hostinfo {
+    text-align: right;
+    font-family: monospace;
+}
+
+/* Crazy CSS3 Spring Logo */
+#logo {
+    margin: 10em;
+}
+
+.round {
+    display: block;
+    height: 10em;
+    width: 10em;
+    background-color: #f1f1f1;
+    border-radius: 5em;
+}
+
+.leaf1 {
+    height: 1em;
+    width: 1em;
+    position: absolute;
+    background-color: #34302d;
+    top: 18em;
+    left: 11.4em;
+    border-radius: 0.5em;
+}
+
+.leaf2 {
+    position: absolute;
+    top: 14em;
+    left: 11.5em;
+    width: 7.8em;
+    height: 4em;
+    background-color: #34302d;
+    border-radius: 2em 2em;
+}
+
+.leaf3 {
+    position: absolute;
+    background-color: #34302d;
+    width: 1em;
+    height: 5em;
+    left: 18.2em;
+    top: 11.9em;
+    border-top-right-radius: 1.3em 4.5em;
+}
+
+.leaf4 {
+    position: absolute;
+    top: 12em;
+    left: 13.5em;
+    width: 5em;
+    height: 5em;
+    background-color: #34302d;
+}
+
+.leaf5 {
+    position: absolute;
+    top: 12em;
+    left: 13.3em;
+    width: 5em;
+    height: 2em;
+    background: #f1f1f1;
+    border-bottom-right-radius: 14em 6em;
+}
+
+.leaf6 {
+    position: absolute;
+    top: 15em;
+    left: 13em;
+    width: 5em;
+    height: 2em;
+    border-bottom: 0.5em solid #f1f1f1;
+    border-bottom-right-radius: 11em 6em;
+}
