@@ -1,0 +1,101 @@
+= Part #2 :: More on Boot
+
+In this part, we'll learn more about Soring Boot's auto-configuration features and its configuration management system.
+
+== Step #5 - create a command line app
+
+In the command-line project, create a `Startup` class that:
+
+* extends `CommandLineRunner`
+* is an `@Component`
+* prints out "Hello World!"
+
+In the next step, we'll pretend that this simple print statement is actually fairly complex and involves
+an external library to include as a dependency, configure properly with Spring, etc.
+
+== Step #6 - create a starter + auto-configuration
+
+For that, we can create a starter that brings in dependencies and auto-configuration classes to configure the library.
+In the `hello-service-auto-configuration` project, we'll need to add `spring-boot-autoconfigure` as a dependency
+to use Boot's autoconfigure infrastructure.
+
+Create now a `HelloService` with a simple `sayHello` method.
+
+Add a default `ConsoleHelloService` implementation for this that does a `System.out.println`.
+
+Add a new class with the following implementation, and try to figure out its behavior:
+
+```
+@Configuration
+@ConditionalOnClass(HelloService.class)
+public class HelloServiceAutoConfiguration {
+
+    @ConditionalOnMissingBean
+    @Bean
+    public HelloService helloService() {
+        return new ConsoleHelloService();
+    }
+
+}
+```
+
+For Boot to discover this auto-configuration class, we need to declare it in `META-INF/spring.factories`, using
+the class fully qualified name like:
+
+```
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=demo.hello.HelloServiceAutoConfiguration
+```
+
+Note that our `command-line` project already has `hello-service-auto-configuration` as a dependency.
+Time to wire things together, by deleting our simple print statement in our `Startup` class and `@Autowire` there
+an instance of `HelloService` and use it to say hello!
+
+At that point, it should automatically use the default implementation provided by our auto-configuration.
+
+Now declaring a custom `HelloService` as a `@Bean` in our `CommandLineApplication` should prevent the default impl
+from being instantiated. Try it!
+
+== Step #7 - typesafe configuration
+
+Remove your custom `@Bean` from the last step to fall back to the default implementation.
+We now want to make the hello message fully configurable through Boot typesafe properties.
+
+Back to the auto-configuration project.
+Create the following class, that declares the message prefix and the message recipient, "target":
+
+```
+@ConfigurationProperties("hello")
+public class HelloProperties {
+
+    private String prefix = "Hello";
+
+    private String target = "World!";
+
+    // add getters and setters
+}
+```
+
+Link our auto-configuration class to this properties class using the `@EnableConfigurationProperties` annotation.
+Update `ConsoleHelloService`:
+* inject a HelloProperties instance using `@Autowired`
+* use that instance to craft the hello message
+
+You can now run the application with the default values and customize those by adding `hello.prefix` and `hello.target`
+keys in your `application.properties` file in your command-line app.
+
+== Step #8 - configuration metadata
+
+NOTE: This part only works with IDEs that support this Spring Boot feature: https://spring.io/tools/sts[Eclipse STS]
+or https://www.jetbrains.com/idea/[IntelliJ IDEA Ultimate Edition]
+
+Better, we'd like those configuration keys to be auto-completed in our favorite IDE.
+Spring Boot can generate metadata to assist IDEs in that task.
+
+For this, add a `spring-boot-configuration-processor` dependency in the auto-configuration project, with the optional
+scope.
+
+Add some Javadoc to your `HelloProperties` fields and then run `mvn compile` in your auto-configuration project.
+
+Now, enjoy auto-completion in your command-line project!
+
+

@@ -26,46 +26,6 @@ of the step you want to be in (i.e. step is completed and you're ready to work o
 
     $ git reset origin/stepX --hard
 
-== Part #1 :: Booting sequence
-
-In this part, we'll start from a simple skeleton application we've created with the http://start.spring.io service.
-This is the workshop app.
-
-=== Step #1 - run and test a simple REST service
-
-Go to the workshop app and run it:
-* in your IDE with the "run as main" command
-* in your terminal with `mvn spring-boot:run`
-
-Look at the startup logs and go to http://localhost:8080
-
-Create a new REST Controller that returns `Hello World!` on the `"/"` endpoint. For this, you can use the
-`@RestController` and `@RequestMapping` annotations.
-
-Restart the application and browse to the endpoint.
-
-Now create an integration test for this controller; this test class should:
-* be annotated `@WebIntegrationTest` and ask for a random port
-* inject that port as an attribute, using the `@Value` annotation and the following SpEL expression `"${local.server.port}"`
-* use a `RestTemplate` to query that endpoint and check that it responds with "Hello World!"
-
-Now, update your REST Controller to make the "World!" part configurable:
-* use again `@Value` and a SpEL expr. such as `${conference.name:SpringOne2GX}` on an attribute
-* use that attribute in the controller action
-
-Update your test and try the application again.
-
-Add a `conference.name` property in your `application.properties` files and run the app.
-
-Now package the app and try running it as a JAR app:
-
-    $ mvn clean package
-    $ java -jar target/workshop-0.0.1-SNAPSHOT.jar --conference.name="SpringIO"
-
-=== Step #2 - persist data in a datastore
-
-
-=== Step #3 - Secure your application
 
 == Thanks
 

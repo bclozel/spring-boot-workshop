@@ -1,0 +1,140 @@
+= Part #1 :: Booting sequence
+
+In this part, we'll start from a simple skeleton application we've created with the http://start.spring.io service.
+This is the workshop app.
+
+== Step #1 - run and test a simple REST service
+
+Go to the workshop app and run it:
+
+* in your IDE with the "run as main" command
+* in your terminal with `mvn spring-boot:run`
+
+Look at the startup logs and go to http://localhost:8080
+
+Create a web package and a new REST Controller that returns `Hello World!` on the `"/"` endpoint.
+For this, you can use the `@RestController` and `@RequestMapping` annotations.
+
+Restart the application and browse to the endpoint.
+
+Now create an integration test for this controller; this test class should:
+
+* be annotated `@WebIntegrationTest` and ask for a random port
+* inject that port as an attribute, using the `@Value` annotation and the following SpEL expression `"${local.server.port}"`
+* use a `RestTemplate` to query that endpoint and check that it responds with "Hello World!"
+
+Now, update your REST Controller to make the "World!" part configurable:
+
+* use again `@Value` and a SpEL expr. such as `${conference.name:SpringOne2GX}` on an attribute
+* use that attribute in the controller action
+
+Update your test and try the application again.
+
+Add a `conference.name` property in your `application.properties` files and run the app.
+
+Now package the app and try running it as a JAR app:
+
+    $ mvn clean package
+    $ java -jar target/workshop-0.0.1-SNAPSHOT.jar --conference.name="SpringIO"
+
+== Step #2 - persist data in a datastore
+
+Add to your POM the following dependencies (no need to specify versions):
+
+* `org.springframework.boot` : `spring-boot-starter-data-jpa`
+*  `com.h2database` : `h2` with runtime scope
+
+Create a domain package and a new `Speaker` class that:
+
+* is a JPA `@Entity`
+* has an id of type `Long` (annotate it with `@Id` and `@GeneratedValue`)
+* has a `firstName`, `lastName`, `twitter` and a `bio` of type `String`
+
+Now create a `SpeakerRepository` *interface* alongside to it and add spring-data methods that:
+
+* extends `CrudRepository<Speaker, Long>`
+* find a Speaker by its twitter handle
+* find a list of Speakers by their last name
+
+Create a `SpeakerRepositoryTests` class in the test package that:
+
+* has the repository `@Autowired`
+* uses this repository to persist a new Speaker and tests the methods we just created
+
+Now we're going to use spring-data-rest to expose those entities as REST resources.
+
+Add to your POM the Boot starter for spring-data-rest.
+Restart your applications and browse `http://localhost:8080/speakers/`; see how entities are exposed
+and look at the search endpoints.
+
+You can create speakers with the `createAll.sh` shell script in the `scripts` folder of the main project,
+or `POST` the content of those JSON files with curl or a browser extension.
+
+Decorate your `SpeakerRepository` methods with `@RestResource` and `@Param` annotations, in order
+to get the following search methods:
+
+* `"http://localhost:8080/speakers/search/by-twitter?id=brianclozel"`
+* `"http://localhost:8080/speakers/search/findByLastName?name=clozel"`
+
+
+== Step #3 - Secure your application
+
+Now we're going to add security to our application.
+Let's add the security Boot starter to our POM and then:
+
+* restart your app and browse `http://localhost:8080/`
+* you should be able to login with login `"user"`; for the password, look into your app logs...
+
+Check that your web integration fails.
+
+Let's configure our own authentication mechanism; for that, create a `SecurityConfig` class that:
+
+* is an `@Configuration` class
+* extends spring security's `GlobalAuthenticationConfigurerAdapter`
+
+In that class, override the `init` method and use the builder API to:
+
+* set up an in memory authentication
+* create a user "user", password "user" and security role "USER"
+* create a user "hero", password "hero" and security roles "USER" and "HERO"
+
+Update your web integration test and this time, use the `TestRestTemplate` class
+instead of the `RestTemplate` for using the "user/user" configured credentials.
+
+Now we'd like to restrict some endpoints to specific roles; for that, we can:
+
+* add a `@EnableGlobalMethodSecurity(securedEnabled=true)` annotation to the security configuration class
+* add a `@Secured("ROLE_HERO")` annotation on our home endpoint in `HomeController`
+
+Test the the web integration test fails with the proper HTTP status.
+Fix it with the right user credentials.
+
+
+== Step #4 - Prepare your application for production
+
+For that, add the "actuator" Boot starter.
+This should add many new useful endpoints to your application, including: `/mappings`,
+`/health`, `/env`, `/trace`, `/autoconfig`, `/info`, `/dump`...
+
+Make sure to update your `application.properties` with `managment.security.role=HERO`
+and to use the "hero/hero" credentials to check those endpoints.
+
+Now add any key/value under the "info" property in your `application.properties`,
+something like `info.test.message=Hello World!`.
+
+Now in the `DemoApplication` class, create a Bean like this:
+
+```
+@Bean
+public HealthIndicator customHealthIndicator() {
+	return new HealthIndicator() {
+	  // implement method and use the "Health" builder class...
+	}
+}
+```
+
+This bean should now participate in the `/health` endpoint.
+
+Add the "remote-shell" Boot starter and restart your application.
+
+Now try to type this in your terminal: `ssh -p 2000 hero@localhost`
